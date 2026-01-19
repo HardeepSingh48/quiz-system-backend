@@ -8,11 +8,10 @@ from app.domain.enums import UserRole
 
 
 class UserRegister(BaseModel):
-    """Schema for user registration"""
+    """Schema for user registration - role is NOT included for security"""
     email: EmailStr
     username: str = Field(min_length=3, max_length=50)
     password: str = Field(min_length=8, max_length=100)
-    role: UserRole = Field(default=UserRole.USER)
     
     @validator("password")
     def validate_password(cls, v: str) -> str:

@@ -158,7 +158,7 @@ class QuizService:
     
     async def publish_quiz(self, quiz_id: UUID) -> Quiz:
         """
-        Publish a quiz
+        Publish a quiz and send notifications
         
         Args:
             quiz_id: Quiz ID
@@ -173,8 +173,12 @@ class QuizService:
         if not quiz:
             raise QuizNotFoundException(details={"quiz_id": str(quiz_id)})
         
-        # TODO: Trigger notification to users (Celery task)
-        # celery.send_task('notifications.quiz_published', args=[quiz_id])
+        # Trigger notification to assigned users (Celery task)
+        from app.workers.celery_app import celery_app
+        celery_app.send_task(
+            "notifications.send_quiz_published",
+            args=[str(quiz_id)]
+        )
         
         return quiz
     
@@ -206,7 +210,7 @@ class QuizService:
         due_date: Optional[datetime] = None
     ) -> dict:
         """
-        Assign quiz to multiple users
+        Assign quiz to multiple users and send notifications
         
         Args:
             quiz_id: Quiz ID
@@ -227,6 +231,13 @@ class QuizService:
                 user_id=user_id,
                 assigned_by=assigned_by,
                 due_date=due_date
+            )
+            
+            # Send notification to assigned user (Celery task)
+            from app.workers.celery_app import celery_app
+            celery_app.send_task(
+                "notifications.send_quiz_assigned",
+                args=[str(user_id), str(quiz_id)]
             )
         
         return {

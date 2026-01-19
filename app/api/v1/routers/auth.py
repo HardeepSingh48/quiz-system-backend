@@ -18,18 +18,19 @@ async def register(
     """
     Register a new user
     
+    SECURITY: Role is ALWAYS 'user' - admins must be created via seed script
+    
     Args:
-        user_data: User registration data
+        user_data: User registration data (without role)
         auth_service: Authentication service
         
     Returns:
-        Created user
+        Created user with role='user'
     """
     user = await auth_service.register(
         email=user_data.email,
         username=user_data.username,
-        password=user_data.password,
-        role=user_data.role
+        password=user_data.password
     )
     return user
 

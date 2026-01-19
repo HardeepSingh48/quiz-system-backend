@@ -32,20 +32,20 @@ class AuthService:
         self,
         email: str,
         username: str,
-        password: str,
-        role: str
+        password: str
     ) -> User:
         """
-        Register a new user
+        Register a new user - always creates with 'user' role
+        
+        SECURITY: Role is hardcoded to 'user'. Admin users must be created via seed script.
         
         Args:
             email: User email
             username: Username
             password: Plain password
-            role: User role
             
         Returns:
-            Created user
+            Created user with role='user'
             
         Raises:
             UserAlreadyExistsException: If email or username exists
@@ -63,8 +63,8 @@ class AuthService:
                 details={"username": username, "reason": "Username already taken"}
             )
         
-        # Create user
-        user = await self.user_repo.create(email, username, password, role)
+        # Create user with FORCED 'user' role
+        user = await self.user_repo.create(email, username, password, role="user")
         return user
     
     async def login(self, email: str, password: str) -> Tuple[str, str, int]:

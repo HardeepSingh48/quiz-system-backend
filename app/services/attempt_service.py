@@ -230,9 +230,23 @@ class AttemptService:
         attempt.status = AttemptStatus.SUBMITTED
         await self.attempt_repo.update(attempt)
         
-        # TODO: Queue background tasks
-        # celery.send_task('update_leaderboard', args=[result.id])
-        # celery.send_task('send_result_notification', args=[attempt.user_id, result.id])
+        # Queue background tasks
+        from app.workers.celery_app import celery_app
+        
+        # Send result notification
+        celery_app.send_task(
+            "notifications.send_result_notification",
+            args=[
+                str(attempt.user_id),
+                str(attempt.quiz_id),
+                score_data["score"],
+                score_data["percentage"],
+                score_data["passed"]
+            ]
+        )
+        
+        # Update leaderboard (if leaderboard worker exists)
+        # celery_app.send_task("leaderboard.update_rankings", args=[str(result.id)])
         
         return {
             "result_id": result.id,
