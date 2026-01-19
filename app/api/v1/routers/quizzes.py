@@ -66,6 +66,20 @@ async def list_published_quizzes(
     return quizzes
 
 
+
+@router.get("/my-quizzes", response_model=List[QuizResponse])
+async def get_my_assigned_quizzes(
+    current_user: User = Depends(get_current_user),
+    quiz_service: QuizService = Depends(get_quiz_service)
+):
+    """
+    Get all quizzes assigned to current user
+    Includes both public quizzes and specifically assigned ones
+    """
+    quizzes = await quiz_service.get_user_quizzes(current_user.id)
+    return quizzes
+
+
 @router.get("/{quiz_id}", response_model=QuizResponse)
 async def get_quiz(
     quiz_id: UUID,
@@ -223,14 +237,3 @@ async def get_quiz_assignments(
     return result
 
 
-@router.get("/my-quizzes", response_model=List[QuizResponse])
-async def get_my_assigned_quizzes(
-    current_user: User = Depends(get_current_user),
-    quiz_service: QuizService = Depends(get_quiz_service)
-):
-    """
-    Get all quizzes assigned to current user
-    Includes both public quizzes and specifically assigned ones
-    """
-    quizzes = await quiz_service.get_user_quizzes(current_user.id)
-    return quizzes

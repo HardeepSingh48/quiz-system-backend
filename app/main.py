@@ -8,7 +8,7 @@ from app.core.config import settings
 from app.core.logging import setup_logging
 from app.core.exceptions import CustomException
 from app.db.session import init_db, close_db
-from app.api.v1.routers import auth, quizzes, attempts, results, leaderboard
+from app.api.v1.routers import auth, quizzes, attempts, results, leaderboard, notifications
 
 
 @asynccontextmanager
@@ -94,6 +94,7 @@ app.include_router(quizzes.router, prefix=settings.API_V1_PREFIX)
 app.include_router(attempts.router, prefix=settings.API_V1_PREFIX)
 app.include_router(results.router, prefix=settings.API_V1_PREFIX)
 app.include_router(leaderboard.router, prefix=settings.API_V1_PREFIX)
+app.include_router(notifications.router, prefix=settings.API_V1_PREFIX)
 
 
 # Root endpoint

@@ -7,7 +7,12 @@ from app.core.config import settings
 celery_app = Celery(
     "quiz_system",
     broker=settings.CELERY_BROKER_URL,
-    backend=settings.CELERY_RESULT_BACKEND
+    backend=settings.CELERY_RESULT_BACKEND,
+    include=[
+        "app.workers.notification_worker",
+        "app.workers.leaderboard_worker",
+        "app.workers.attempt_worker"
+    ]
 )
 
 # Celery configuration

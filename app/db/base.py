@@ -26,6 +26,7 @@ class User(SQLModel, table=True):
     attempts: List["Attempt"] = Relationship(back_populates="user")
     results: List["Result"] = Relationship(back_populates="user")
     refresh_tokens: List["RefreshToken"] = Relationship(back_populates="user")
+    notifications: List["Notification"] = Relationship(back_populates="user")
 
 
 class Quiz(SQLModel, table=True):
@@ -184,3 +185,38 @@ class QuizAssignment(SQLModel, table=True):
     user: User = Relationship(
         sa_relationship_kwargs={"foreign_keys": "[QuizAssignment.user_id]"}
     )
+
+
+class Notification(SQLModel, table=True):
+    """
+    In-app notification model.
+    Stores all user notifications for display in the UI.
+    """
+    
+    __tablename__ = "notifications"
+    
+    id: UUID = Field(default_factory=uuid4, primary_key=True)
+    user_id: UUID = Field(foreign_key="users.id", index=True)
+    
+    # Notification content
+    type: str = Field(index=True, max_length=50)  # NotificationType enum value
+    title: str = Field(max_length=255)
+    message: str
+    
+    # Optional reference to related entity
+    quiz_id: Optional[UUID] = Field(default=None, foreign_key="quizzes.id")
+    attempt_id: Optional[UUID] = Field(default=None, foreign_key="attempts.id")
+    result_id: Optional[UUID] = Field(default=None, foreign_key="results.id")
+    
+    # Status
+    is_read: bool = Field(default=False, index=True)
+    read_at: Optional[datetime] = Field(default=None)
+    
+    # Timestamps
+    created_at: datetime = Field(default_factory=datetime.utcnow, index=True)
+    
+    # Relationships
+    user: User = Relationship(back_populates="notifications")
+    quiz: Optional[Quiz] = Relationship()
+    attempt: Optional[Attempt] = Relationship()
+    result: Optional[Result] = Relationship()

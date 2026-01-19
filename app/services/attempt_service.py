@@ -239,6 +239,7 @@ class AttemptService:
             args=[
                 str(attempt.user_id),
                 str(attempt.quiz_id),
+                str(result.id),  # Added result_id
                 score_data["score"],
                 score_data["percentage"],
                 score_data["passed"]
