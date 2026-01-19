@@ -1,7 +1,6 @@
 """Quiz repository for database operations"""
 
 from typing import Optional, List
-from datetime import datetime
 from uuid import UUID
 from datetime import datetime
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -151,6 +150,11 @@ class QuizRepository:
     ):
         """Assign quiz to a user"""
         from app.db.base import QuizAssignment
+        
+        # Normalize due_date to naive datetime (database expects TIMESTAMP WITHOUT TIME ZONE)
+        if due_date and due_date.tzinfo is not None:
+            # Convert to UTC and remove timezone info
+            due_date = due_date.replace(tzinfo=None)
         
         # Check if assignment already exists
         result = await self.session.execute(
